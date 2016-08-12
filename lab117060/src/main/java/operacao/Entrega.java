@@ -6,8 +6,7 @@ public class Entrega {
 	private Venda venda;
 	private String endereco;
 
-	
-	
+
 	public int getIdEntrega() {
 		return idEntrega;
 	}

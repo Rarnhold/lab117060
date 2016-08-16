@@ -12,9 +12,9 @@ import javax.servlet.annotation.WebServlet;
 	            destinationName = "QueuePedido"
 	        ),
 	        @JMSDestinationDefinition(
-	            name = "java:/topic/TopicPedido",
+	            name = "java:/topic/TopicVenda",
 	            interfaceName = "javax.jms.Topic",
-	            destinationName = "TopicPedido"
+	            destinationName = "TopicVenda"
 	        )
 	    })
 

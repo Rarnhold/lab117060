@@ -36,3 +36,4 @@ public class MdbLogistica implements MessageListener {
 			e.printStackTrace();
 		}
 	}
+}

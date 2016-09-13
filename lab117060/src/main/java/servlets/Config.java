@@ -2,6 +2,7 @@ package servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -9,6 +10,7 @@ import javax.jms.Destination;
 import javax.jms.JMSContext;
 import javax.jms.JMSDestinationDefinition;
 import javax.jms.JMSDestinationDefinitions;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.servlet.ServletException;
@@ -16,6 +18,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import operacao.Venda;
 
 /*@JMSDestinationDefinitions(
 	    value = {
@@ -40,34 +44,25 @@ public class Config extends HttpServlet {
     @Inject
     private JMSContext context;
 
-    @Resource(lookup = "java:/queue/HELLOWORLDMDBQueue")
+    @Resource(lookup = "java:/queue/QueuePedido")
     private Queue queue;
 
-    @Resource(lookup = "java:/topic/HELLOWORLDMDBTopic")
+    @Resource(lookup = "java:/topic/TopicVenda")
     private Topic topic;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/html");
-        PrintWriter out = resp.getWriter();
-        out.write("<h1>Quickstart: Example demonstrates the use of <strong>JMS 2.0</strong> and <strong>EJB 3.2 Message-Driven Bean</strong> in WildFly 8.</h1>");
-        try {
-            boolean useTopic = req.getParameterMap().keySet().contains("topic");
-            final Destination destination = useTopic ? topic : queue;
+    	try {
+			boolean useTopic = req.getParameterMap().keySet().contains("topic");
+			final Destination destination = useTopic ? topic : queue;
+			Venda venda = new Venda();
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject((Serializable) venda);
+			context.createProducer().send(destination, objectMessage);
 
-            out.write("<p>Sending messages to <em>" + destination + "</em></p>");
-            out.write("<h2>Following messages will be send to the destination:</h2>");
-            for (int i = 0; i < MSG_COUNT; i++) {
-                String text = "This is message " + (i + 1);
-                context.createProducer().send(destination, text);
-                out.write("Message (" + i + "): " + text + "</br>");
-            }
-            out.write("<p><i>Go to your WildFly Server console or Server log to see the result of messages processing</i></p>");
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
+		} catch (Throwable th) {
+			th.printStackTrace();
+		}
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
